@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lender Fit Explainer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f4b3f'/%3E%3Cpath d='M8 22V10h3v9h6v3H8zm10-12h3v12h-3V10z' fill='%23f4f2ec'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Lender Fit Explainer</h1>
+      <p class="tagline">
+        Checks a deal against a set of lender criteria profiles and says <em>why</em> each answer is what it is.
+        Not a score. A cited reason.
+      </p>
+      <p class="synthetic-banner" id="synthetic-banner">
+        Synthetic sample data. Placeholder lender names and invented criteria, created for this prototype only.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <h2>Worked examples</h2>
+      <p class="muted">
+        Three deals that demonstrate the three verdicts. Each one loads into the form below and runs against all
+        nine lender profiles.
+      </p>
+      <div class="examples" id="examples"></div>
+    </section>
+
+    <section class="panel">
+      <h2>The deal</h2>
+      <form id="deal-form">
+        <div class="grid">
+          <label class="field span-2">
+            <span>Deal name</span>
+            <input type="text" name="name" placeholder="Untitled deal">
+          </label>
+
+          <label class="field">
+            <span>Loan requested</span>
+            <input type="text" name="loanAmount" inputmode="numeric" placeholder="9,500,000" required>
+          </label>
+
+          <label class="field">
+            <span>LTV (%)</span>
+            <input type="number" name="ltv" step="0.1" min="0" max="150" placeholder="68" required>
+          </label>
+
+          <label class="field">
+            <span>Property type / industry</span>
+            <select name="propertyType" id="propertyType" required></select>
+          </label>
+
+          <label class="field">
+            <span>State</span>
+            <input type="text" name="state" maxlength="2" placeholder="GA" required style="text-transform:uppercase">
+          </label>
+
+          <label class="field">
+            <span>Business plan</span>
+            <select name="projectStage" id="projectStage"></select>
+          </label>
+
+          <label class="field">
+            <span>Occupancy (%)</span>
+            <input type="number" name="occupancyPct" step="0.1" min="0" max="100" placeholder="88">
+          </label>
+        </div>
+
+        <details class="more" open>
+          <summary>Sponsor and tenancy <span class="muted">(feeds the soft-criteria pass)</span></summary>
+          <div class="grid">
+            <label class="field">
+              <span>Sponsor years of experience</span>
+              <input type="number" name="sponsor.yearsExperience" min="0" placeholder="14">
+            </label>
+            <label class="field">
+              <span>Prior deals, same asset class</span>
+              <input type="number" name="sponsor.priorDealsSameAssetClass" min="0" placeholder="6">
+            </label>
+            <label class="field">
+              <span>Sponsor local to market</span>
+              <select name="sponsor.localToMarket">
+                <option value="">Not stated</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Owner will occupy</span>
+              <select name="sponsor.isOwnerOccupant">
+                <option value="">Not stated</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>GC track record</span>
+              <select name="sponsor.generalContractorTrackRecord">
+                <option value="">Not stated</option>
+                <option value="none">None</option>
+                <option value="limited">Limited</option>
+                <option value="comparable-scale">Comparable scale</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Largest tenant share (%)</span>
+              <input type="number" name="tenancy.largestTenantSharePct" step="0.1" min="0" max="100" placeholder="55">
+            </label>
+            <label class="field">
+              <span>Remaining lease term (years)</span>
+              <input type="number" name="tenancy.leaseTermRemainingYears" step="0.5" min="0" placeholder="4">
+            </label>
+            <label class="field">
+              <span>Tenant credit rated</span>
+              <select name="tenancy.tenantCreditRated">
+                <option value="">Not stated</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Rollover next 24 months (%)</span>
+              <input type="number" name="tenancy.rolloverNext24MonthsPct" step="0.1" min="0" max="100" placeholder="25">
+            </label>
+          </div>
+          <label class="field">
+            <span>Deal narrative</span>
+            <textarea name="notes" rows="3" placeholder="Anything a human would say about the business plan and the operator."></textarea>
+          </label>
+        </details>
+
+        <div class="actions">
+          <button type="submit" class="primary" id="submit-btn">Check against all lenders</button>
+          <span class="soft-mode" id="soft-mode"></span>
+        </div>
+        <p class="error" id="error" hidden></p>
+      </form>
+    </section>
+
+    <section class="panel" id="results-panel" hidden>
+      <h2>Verdicts</h2>
+      <div class="counts" id="counts"></div>
+      <div id="focus-note" class="focus-note" hidden></div>
+      <div class="results" id="results"></div>
+    </section>
+
+    <section class="panel">
+      <h2>How a verdict is reached</h2>
+      <ol class="how">
+        <li>
+          <strong>Hard criteria, in code.</strong> Loan size, excluded industry, geography, LTV, exposure cap.
+          Arithmetic and set membership, never a judgment call. Any failure is
+          <span class="badge not-eligible">Not Eligible</span>, cited to the exact criterion.
+        </li>
+        <li>
+          <strong>Margin check.</strong> A deal that breaks no rule but lands within <span id="m-loan">10%</span>
+          of a loan-size bound, <span id="m-ltv">2</span> points of the LTV cap, or <span id="m-exp">10%</span> of an
+          exposure cap is <span class="badge borderline">Borderline</span> regardless of how it reads otherwise.
+        </li>
+        <li>
+          <strong>Soft criteria.</strong> Only for deals that cleared the hard filter. Operator experience, risk
+          appetite language. This pass can move a deal to <span class="badge borderline">Borderline</span>, but it
+          can never produce a Not Eligible: a preference is not a rule.
+        </li>
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>The nine synthetic lender profiles</h2>
+      <p class="muted">Invented for this prototype. No real lender names, no real terms.</p>
+      <div id="lenders" class="lenders"></div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>
+      Prototype. All lender profiles and deals are synthetic sample data and must not be used for any real
+      financing decision.
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

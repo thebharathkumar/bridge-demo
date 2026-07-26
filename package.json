@@ -1,0 +1,20 @@
+{
+  "name": "lender-fit-explainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prototype: checks a commercial loan deal against synthetic lender criteria profiles and returns a cited verdict per lender (Eligible / Not Eligible / Borderline).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.115.0"
+  }
+}
