@@ -1,5 +1,12 @@
 # Lender Fit Explainer
 
+<!-- brag:start -->
+<p align="center">
+  <a href="https://github.com/thebharathkumar/bridge-demo/blob/HEAD/docs/brag/bridge-demo.mp4"><img src="https://raw.githubusercontent.com/thebharathkumar/bridge-demo/HEAD/docs/brag/bridge-demo.gif" alt="bridge-demo: 15-second technical brief" width="100%"></a>
+</p>
+<p align="center"><sub>15-second technical brief. <a href="https://github.com/thebharathkumar/bridge-demo/blob/HEAD/docs/brag/bridge-demo.mp4">Full MP4 with sound</a> &middot; more at <a href="https://thebharath.co">thebharath.co</a></sub></p>
+<!-- brag:end -->
+
 Takes a commercial loan deal's basics, checks it against a set of lender criteria profiles, and returns a
 verdict per lender — **Eligible**, **Not Eligible**, or **Borderline** — with the exact criterion that drove
 the decision, quoted.
